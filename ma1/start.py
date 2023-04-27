@@ -11,35 +11,45 @@ always alive
 """
 
 # Import CircuitPython libs
-import supervisor, time, board, neopixel
+import os, supervisor, time, board, neopixel
 
 # Import Magical Apes global libs
 import lib_cp_magicalapes.system as ma_system
 import lib_cp_magicalapes.output.display_ssd1306 as ma_display
 import lib_cp_magicalapes.output.sound as ma_sound
+import lib_cp_magicalapes.output.lights as ma_lights
 import lib_cp_magicalapes.utils as ma_utils
 
 # Import MA1 specific libs
-# These libraries are configurable in config.py
+# These libraries are configurable in settings.toml file
 # Extend, hack, make your own to your herts content
-from config import life
-ma1_state = __import__(life['state'], globals(), locals(), [], 0)
-ma1_emotions = __import__(life['emotions'], globals(), locals(), [], 0)
-import ma1.stopwatch as ma1_stopwatch
+ma1_state = __import__(os.getenv('state_module'), globals(), locals(), [], 0)
+ma1_emotions = __import__(os.getenv('emotions_module'), globals(), locals(), [], 0)
+
+# Read setting / create constants
+BRIGHTNESS_DAY = os.getenv('brightness_day')
+BRIGHTNESS_NIGHT = os.getenv('brightness_night')
+MODE_NORMAL = 0
+MODE_LEFT = 1
+MODE_RIGHT = 2
+MODE_UPSIDE = 3
+DELAY = 0.1
 
 # Switch off the internal LED
-led = neopixel.NeoPixel(board.NEOPIXEL, 1, pixel_order=neopixel.RGB)
-led.brightness = .1
-led[0] = (0, 0, 0)
+pixels = ma_lights.Pixel(board.GP16, n_pixels=1)
+pixels.clear()
+
+# This is needed since CircuitPython displayio does not release i2c pin during soft reboots
+ma_display.release()
 
 # system can be used to read the temprature, voltage etc.
-system = ma_system.System(board.A3)
+system = ma_system.System(vsys = board.A3)
 
-# Create the I2C interface for OLED, use any pins you like, we are going with GP0 (SDA) & GP1 (SCL)
+# Create the I2C interface for OLED, use any pins you like, we are going with GP13 (SDA) & GP12 (SCL)
 # busio.I2C(SCL, SDA)
-i2c = system.open_i2c(board.GP11, board.GP10)
+i2c = system.open_i2c(board.GP13, board.GP12, freq=800_000)
 
-# This initialised MA1 specific sensors and state
+# This initialises MA1 specific sensors and state
 ma1 = ma1_state.LSTM(i2c)
 
 # Create a I2C display channel
@@ -47,7 +57,7 @@ display = ma_display.Display_I2C(128, 64, i2c)
 display.contrast(1)
 
 # Initialize buzzer pin
-tone = ma_sound.Tone(board.GP1)
+tone = ma_sound.Tone(board.GP3)
 
 # Initialize MA1 emotions
 emotions = ma1_emotions.Emotions(display, tone)
@@ -55,22 +65,19 @@ emotions = ma1_emotions.Emotions(display, tone)
 # eg, a nice tone, some nice text, your custom emotions etc.
 emotions.startup()
 
-# Initialize MA1 stopwatch
-stopwatch = ma1_stopwatch.Stopwatch(display, tone)
-
 # Keep previous state to compare
 pre_state = ma1.state_array
 
-MODE_NORMAL = 0
-MODE_LEFT = 1
-MODE_RIGHT = 2
-MODE_UPSIDE = 3
-DELAY = 0.1
-
 # Local variables and constants you can adapt
+screen_timer = ma_utils.Timer()
 no_activity_timer = ma_utils.Timer()
 break_timer = ma_utils.Timer()
+god_mode_timer = ma_utils.Timer()
 mode = MODE_NORMAL
+env_data = None
+screen = 0
+sleeping = False
+polluted = False
 
 while True:
 
@@ -81,32 +88,61 @@ while True:
         emotions.hot()
         continue
 
-    break_timer.measure()
-
     # This measures the state of all connected sensors
     ma1.measure()
     
     # Get previous and current states
     dark = ma1.dark
-    sound = ma1.sound
     touch = ma1.touch
     picked = ma1.picked
     left = ma1.left
     right = ma1.right
     upside = ma1.upside
     quick_move = ma1.quick_move
+    polluted = ma1.polluted
 
-    if right[1] == 1:
+    if dark[1]:
+        emotions.brightness = BRIGHTNESS_NIGHT
+    else:
+        emotions.brightness = BRIGHTNESS_DAY
+
+    if left[1] == 1:
+        mode = MODE_LEFT
+    elif right[1] == 1:
         mode = MODE_RIGHT
     elif upside[1] == 1:
         mode = MODE_UPSIDE
     else:
         mode = MODE_NORMAL # Normal or left is the same
     
+    env_data = ma1.env_data
+    if env_data:
+        if mode == MODE_RIGHT:
+            display.rotation = 3
+            screen_timer.measure()
+            if screen_timer.elapsed >= 5:
+                screen = 1 - screen # toggle screen
+                screen_timer.reset()
+            emotions.polluted(env_data, show_data=True, screen=screen)
+            # Turned right, no need to evaluate the rest
+            continue
+        else:
+            screen_timer.reset()
+            screen = 0 # so we always start with the first screen on tilt
+            if polluted[1]:
+                # critical levels, do not evaluate the rest
+                display.rotation = 0
+                emotions.polluted(env_data)
+                continue
+
+
     if mode == MODE_NORMAL:
-        if left[1] and no_activity_timer.elapsed > 20:
-            emotions.dream()
-        elif dark[1] and no_activity_timer.elapsed > 300:
+        display.rotation = 0
+        sleeping = False
+        god_mode_timer.reset()
+        break_timer.measure()
+
+        if dark[1] and no_activity_timer.elapsed > 3600:
             emotions.sleep()
         elif no_activity_timer.elapsed > 1800:
             emotions.wonder()
@@ -114,11 +150,11 @@ while True:
             emotions.quiet()
 
         if break_timer.elapsed > 3600:
+            break_timer.reset()
             # Time to prompt for a break
-            # But only if its not dreaming and its not dark / night time
-            if not left[1] and not dark[1]:
+            # But only if its not sleeping and its not dark / night time
+            if not dark[1]:
                 emotions.need_a_break()
-                break_timer.reset()
 
         # Only continue if the state has changed
         if not ma1.state_changed:
@@ -128,21 +164,51 @@ while True:
         no_activity_timer.reset()
 
         if quick_move[1]:
-            emotions.dizzy()
+            emotions.afraid()
         elif picked[1] and touch[1]:
-            emotions.content()
+            emotions.happy(anim=True)
         elif picked[1]:
-            emotions.happy()
+            if not picked[0]: # only if the previous state was not picked
+                emotions.eyes_up(anim=True)
+            #elif touch[0]:
+            #    emotions.happy() # stay happy
+            else:
+                emotions.eyes_up()
         elif touch[1]:
-            emotions.good()
+            #emotions.good(anim=True)
+            emotions.blink()
         else:
-            stopwatch.reset()
             emotions.neutral()
+            #if touch[0]:
+            #    emotions.good()
+            #else:
+            #    emotions.neutral()
             
+    elif mode == MODE_LEFT:
+        god_mode_timer.reset()
+        if sleeping:
+            display.rotation = 0
+            emotions.sleep()
+        elif touch[1]:
+            sleeping = True
+            emotions.eyes_down()
     elif mode == MODE_RIGHT:
-        stopwatch.show()
+        god_mode_timer.reset()
+        sleeping = False
+        if not env_data:
+            emotions.heartbeat()
+            time.sleep(0.8)
     elif mode == MODE_UPSIDE:
-        display.rotation = 2
-        display.fill(0)
-        display.text('Busy', 30, 20, 1, size=3)
-        display.show()
+        sleeping = False
+        if system.god_mode: # existing god mode
+            display.rotation = 2
+            emotions.god_mode()
+            continue
+        god_mode_timer.measure()
+        if god_mode_timer.elapsed > 60:
+            god_mode_timer.reset()
+            system.switch_god_mode()
+        elif god_mode_timer.elapsed > 0:
+            display.rotation = 2
+            emotions.god_mode(counter=god_mode_timer.elapsed)
+                

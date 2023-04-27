@@ -1,0 +1,41 @@
+# ---------------------------------------------------------
+# Name can only be alphanumeric and '-'
+# Used as a USB label when you connect MA-1 to the computer
+# ---------------------------------------------------------
+name="MA-1"
+
+# ---------------------------------------------------------
+# Various sensor and feedback settings you can change
+# [Do not remove any property]
+# ---------------------------------------------------------
+
+# Light sensor:
+# - Above this value we assume its dark
+light_threshold=5900
+
+# Environment sensor:
+# - Temperature offset must be defined in 'degrees celsius'
+# - This offset is to account for the temperature differences within and outside the device
+temperature_offset=4
+# - Temperature scale, use "c" for Celsius "f" for Fahrenheit
+temperature_scale="c"
+# - Altitude, meters above sea level
+altitude=20
+
+# Lights (leg squiggles)
+# - You can set the brightness of the light for the day and evening/night times
+# - higher the value, more light it emmits
+brightness_day=40000
+brightness_night=12000
+
+# ---------------------------------------------------------
+# Advanced
+# ---------------------------------------------------------
+# Override to change display
+resource_path="ma1/assets/"
+# State module, override if needed
+state_module="ma1.state.eltm"
+# Emotions module, override if needed
+emotions_module="ma1.emotions"
+# Main script, this is where the magic starts
+main_script="ma1/start.py"
