@@ -20,7 +20,7 @@ temperature_offset=4
 # - Temperature scale, use "c" for Celsius "f" for Fahrenheit
 temperature_scale="c"
 # - Altitude, meters above sea level
-altitude=20
+altitude=0
 
 # Lights (leg squiggles)
 # - You can set the brightness of the light for the day and evening/night times

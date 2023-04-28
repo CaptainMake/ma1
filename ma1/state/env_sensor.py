@@ -7,13 +7,13 @@ ma1/state/env_sensor
 
 Encapsulates SCD40 functionality
 
-@returns {'CO2': xxx, 'Temperature': xx[c|f], 'Humidity': xx}
+@returns {'CO2': xxx, 'Temperature': xx[c|f], 'T_Scale': [c|f], 'Humidity': xx}
 
 """
 import os, adafruit_scd4x
 
 class EnvSense:
-        
+
     def __init__(self, i2c):
         self.env_sensor = adafruit_scd4x.SCD4X(i2c)
         # SCD40 config
@@ -36,8 +36,7 @@ class EnvSense:
             data = {}
             data['Temperature'] = round(temperature)
             data['T_Scale'] = self.temp_scale
-            data['Humidity'] = round(self.env_sensor.relative_humidity) 
+            data['Humidity'] = round(self.env_sensor.relative_humidity)
             data['CO2'] = self.env_sensor.CO2
             return data
         return None
-    

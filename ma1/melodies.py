@@ -47,7 +47,7 @@ HAPPY_5 = (
 
 HAPPY_MELODIES = [HAPPY_1, HAPPY_2, HAPPY_3, HAPPY_4, HAPPY_5]
 
-# Startup Melodies
+# Break time melodies
 BREAK_1 = (
     (ma_sound.NOTE_G4, 0.15),
     (ma_sound.NOTE_E5, 0.15),
@@ -98,7 +98,6 @@ BREAK_5 = (
 
 BREAK_TIME_MELODIES = [BREAK_1, BREAK_2, BREAK_3, BREAK_4, BREAK_5]
 
-
 BAD_AIR_QUALITY = (
     (ma_sound.NOTE_D5, 0.2),
     (ma_sound.NOTE_FS4, 0.2),
@@ -106,4 +105,3 @@ BAD_AIR_QUALITY = (
     (ma_sound.NOTE_A3, 0.2),
     (ma_sound.NOTE_D3, 0.2),
 )
-

@@ -27,11 +27,11 @@ else:
     # Else mounted USB drive is writable for MA-1, hence readonly for Humans
     # Else no sensor calibration data is persisted, MA-1 wont be able to learn
     storage.remount("/", readonly=False)
-    
+
 
 # Notes regarding the god mode and normal operation mode:
 # -----------------------------------------------------------------------------
-# Since CircuitPython only allows one source (Code or Human) can write at a time,
+# Since CircuitPython only allows one source (Code or Human) to write at a time,
 # We are leaving the mounted storage as read/write for the CircuitPython code
 # This makes it read only for the human but writable for the code
 
@@ -40,12 +40,12 @@ else:
 # - This also helps to avoid accidental deletion of files from the mounted USB drive.
 
 # How do I switch to the god mode?
-# While connected to the USB, Turn MA-2 upside down, wait for approx 60 seconds, you will see the screen shows 'Writable for human'
+# While connected to the USB, Turn MA-1 upside down, wait for approx 60 seconds, you will see the screen shows 'God mode!'
 # Disconnect/connect and now you can change anything to your hearts content
 
 # How do I switch to normal operation mode:
 # Connect MA-1 to the computer
-# Find a file 'remove_for_normal_operation' and delete
+# Find a file 'god_mode.txt' and delete
 # Disconnect/connect and now your MA-1 is back to the normal operation
 # -----------------------------------------------------------------------------
 

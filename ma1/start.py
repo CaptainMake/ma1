@@ -90,7 +90,7 @@ while True:
 
     # This measures the state of all connected sensors
     ma1.measure()
-    
+
     # Get previous and current states
     dark = ma1.dark
     touch = ma1.touch
@@ -114,7 +114,7 @@ while True:
         mode = MODE_UPSIDE
     else:
         mode = MODE_NORMAL # Normal or left is the same
-    
+
     env_data = ma1.env_data
     if env_data:
         if mode == MODE_RIGHT:
@@ -170,19 +170,12 @@ while True:
         elif picked[1]:
             if not picked[0]: # only if the previous state was not picked
                 emotions.eyes_up(anim=True)
-            #elif touch[0]:
-            #    emotions.happy() # stay happy
             else:
                 emotions.eyes_up()
         elif touch[1]:
-            #emotions.good(anim=True)
             emotions.blink()
         else:
             emotions.neutral()
-            #if touch[0]:
-            #    emotions.good()
-            #else:
-            #    emotions.neutral()
             
     elif mode == MODE_LEFT:
         god_mode_timer.reset()
@@ -211,4 +204,3 @@ while True:
         elif god_mode_timer.elapsed > 0:
             display.rotation = 2
             emotions.god_mode(counter=god_mode_timer.elapsed)
-                

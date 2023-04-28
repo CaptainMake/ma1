@@ -17,7 +17,7 @@ import ma1.quotes as ma1_quotes
 import ma1.melodies as ma1_melody
 
 class Emotions:
-    
+
     RESOURCE_PATH = os.getenv('resource_path')
 
     def __init__(self, display, tone):
@@ -128,23 +128,25 @@ class Emotions:
             self.display.text('z', 95, 32, 1)
             self.display.show()
 
-    def say_a_quote(self):
-        self.display.label(self.quotes.get(), x=14, y=17)
+    def say_a_quote_or_joke(self):
+        text = self.quotes.get()
+        y = 17 if len(text) <= 50 else 11
+        self.display.label(text, x=14, y=y)
 
     def need_a_break(self):
         # one time notification only
-        self.tone.melody(random.choice(ma1_melody.BREAK_TIME_MELODIES))        
+        self.tone.melody(random.choice(ma1_melody.BREAK_TIME_MELODIES))
         # Get all break time animations, we are starting with one but users can add their own animations
         break_anim_path = self.RESOURCE_PATH + 'break/'
         animations = self.list_files(break_anim_path, '.bmp')
         img = break_anim_path + random.choice(animations)
         # Show break animation, loop to show for few seconds
         self.display.animate(img, 50, 50, 12, x=39, y=14, invert=True, repeat=6, fps=10)
-        self.say_a_quote()
+        self.say_a_quote_or_joke()
         time.sleep(8)
         self.neutral()
         time.sleep(0.5)
-        self.good(anim=True)        
+        self.good(anim=True)
 
     def hot(self):
         # Notification stays until action is taken
@@ -184,7 +186,7 @@ class Emotions:
                 self.display.text(str(env_data["Temperature"]) + env_data["T_Scale"], 7, 40, 1, size=2)
                 self.display.text('Hum', 7, 72, 1, size=2)
                 self.display.text(str(env_data["Humidity"]) + '%', 7, 92, 1, size=2)
-            self.display.show()    
+            self.display.show()
         if co2 >= 1500:
             if not show_data:
                 self._draw_image('eyes/polluted.pbm')
@@ -214,7 +216,7 @@ class Emotions:
             self.display.fill(0)
             self.display.text('God mode!', 13, 25, 1, size=2)
             self.display.show()
-        
+
 
     def list_files(self, directory, ext):
         files = []
