@@ -18,7 +18,7 @@ import ma1.melodies as ma1_melody
 
 class Emotions:
 
-    RESOURCE_PATH = os.getenv('resource_path')
+    bitmaps_dictionary = __import__(os.getenv('bitmaps'), globals(), locals(), [], 0)
 
     def __init__(self, display, tone):
         self.timer = utils.Timer(millis=True)
@@ -28,13 +28,29 @@ class Emotions:
         self.led_left = ma_lights.LED_PWM(board.GP8, brightness=12000)
         self.led_right = ma_lights.LED_PWM(board.GP14, brightness=12000)
         self.quotes = ma1_quotes.Quotes()
-
+        self.bitmaps = Emotions.bitmaps_dictionary.Bitmaps()
 
     def _draw_image(self, file, *, color:int = 1, shift_x:int = 0, shift_y:int = 0, over:bool = False):
         if not over:
             self.display.fill(0)
-        self.display.draw_image(Emotions.RESOURCE_PATH + file, color, shift_x, shift_y)
+        self.display.draw_image(file, color, shift_x, shift_y)
         self.display.show()
+
+    def _draw_static(self, *dict_location, color:int = 1, over:bool = False):
+        if not over:
+            self.display.fill(0)
+        bitmap = self.bitmaps.get(*dict_location)
+        if bitmap:
+            self.display.draw_image(bitmap['file'], color, bitmap['x'], bitmap['y'])
+        self.display.show()
+
+    def _play_anim(self, *dict_location, repeat:int = 1):
+        bitmap = self.bitmaps.get(*dict_location)
+        if not bitmap:
+            return
+        if isinstance(bitmap, list):
+            bitmap = random.choice(bitmap)
+        self.display.animate(bitmap['file'], bitmap['width'], bitmap['height'], bitmap['frames'], x=bitmap['x'], y=bitmap['y'], invert=bitmap['invert'], fps=bitmap['fps'], repeat=repeat)
 
     @property
     def brightness(self):
@@ -46,10 +62,8 @@ class Emotions:
         self.led_right.brightness = value
 
     def heartbeat(self, *, repeat:int = 1):
-        img = self.RESOURCE_PATH + 'heartbeat.bmp'
-        self.display.animate(img, 50, 50, 10, x=39, y=7, invert=True, repeat=repeat)
+        self._play_anim('heartbeat', repeat=repeat)
 
-    # You can either call this method on startup or create something else
     def startup(self):
         for i in range(4):
             self.heartbeat()
@@ -60,39 +74,31 @@ class Emotions:
         self.tone.play(ma_sound.NOTE_G7, 0.01)
 
     def neutral(self):
-        self._draw_image('eyes/neutral.pbm')
+        self._draw_static('eyes', 'static', 'neutral')
         self.led_left.on()
         self.led_right.on()
 
-    def happy(self, anim:bool=False):
+    def happy(self, anim:bool=False, repeat:int = 1):
         if anim:
-            img = self.RESOURCE_PATH + 'eyes/happy.bmp'
-            self.display.animate(img, 128, 64, 10, x=1, y=0, invert=True, fps=120)
+            self._play_anim('eyes', 'anim', 'happy', repeat=repeat)
         else:
-            self._draw_image('eyes/half-closed.pbm', shift_y=-7)
+            self._draw_static('eyes', 'static', 'happy')
 
-    def good(self, anim:bool=False):
+    def good(self, anim:bool=False, repeat:int = 1):
         if anim:
-            img = self.RESOURCE_PATH + 'eyes/good.bmp'
-            self.display.animate(img, 128, 64, 10, x=1, y=0, invert=True, fps=120)
+            self._play_anim('eyes', 'anim', 'good', repeat=repeat)
         else:
-            self._draw_image('eyes/half-closed.pbm')
-
-    def content(self):
-        self._draw_image('eyes/half-closed.pbm', shift_y=-10)
+            self._draw_static('eyes', 'static', 'good')
 
     def blink(self, repeat:int = 1):
-        img = self.RESOURCE_PATH + 'eyes/blink.bmp'
-        self.display.animate(img, 128, 64, 12, x=1, y=0, invert=True, repeat=repeat, fps=70)
+        self._play_anim('eyes', 'anim', 'blink', repeat=repeat)
 
     def shake(self, repeat:int = 1):
-        img = self.RESOURCE_PATH + 'eyes/shake.bmp'
-        self.display.animate(img, 128, 64, 9, x=1, y=0, invert=True, repeat=repeat, fps=120)
+        self._play_anim('eyes', 'anim', 'shake', repeat=repeat)
 
-    def afraid(self):
+    def afraid(self, repeat:int = 1):
         self.tone.play(ma_sound.NOTE_A3, 0.1)
-        img = self.RESOURCE_PATH + 'eyes/afraid.bmp'
-        self.display.animate(img, 128, 64, 4, x=1, y=0, invert=True, repeat=30, fps=60)
+        self._play_anim('eyes', 'anim', 'afraid', repeat=repeat)
 
     def quiet(self):
         self.timer.measure()
@@ -102,25 +108,23 @@ class Emotions:
     def wonder(self):
         self.timer.measure()
         if 0 <= (self.timer.elapsed % (30*1000)) <= 100: # update every 30 seconds
-            self._draw_image('eyes/neutral.pbm', shift_x=random.randint(-20, 20), shift_y=random.randint(0, 25))
+            self.blink()
 
-    def eyes_up(self, anim:bool=False):
+    def eyes_up(self, anim:bool=False, repeat:int = 1):
         if anim:
-            img = self.RESOURCE_PATH + 'eyes/up.bmp'
-            self.display.animate(img, 128, 64, 8, x=1, y=0, invert=True, fps=120)
+            self._play_anim('eyes', 'anim', 'up', repeat=repeat)
         else:
-            self._draw_image('eyes/neutral.pbm', shift_y=-7)
+            self._draw_static('eyes', 'static', 'up')
 
-    def eyes_down(self):
-        img = self.RESOURCE_PATH + 'eyes/down-left.bmp'
-        self.display.animate(img, 128, 64, 19, x=1, y=0, invert=True, fps=40)
+    def eyes_down(self, repeat:int = 1):
+        self._play_anim('eyes', 'anim', 'down', repeat=repeat)
 
     def sleep(self):
         self.led_left.off()
         self.led_right.off()
         self.timer.measure()
         if 0 <= (self.timer.elapsed % (5*1000)) <= 100: # update every 5 seconds
-            self._draw_image('eyes/neutral.pbm', shift_x=-10, shift_y=35)
+            self._draw_static('eyes', 'static', 'sleep')
             time.sleep(0.5)
             self.display.text('z', 85, 42, 1)
             self.display.show()
@@ -134,14 +138,9 @@ class Emotions:
         self.display.label(text, x=14, y=y)
 
     def need_a_break(self):
-        # one time notification only
         self.tone.melody(random.choice(ma1_melody.BREAK_TIME_MELODIES))
         # Get all break time animations, we are starting with one but users can add their own animations
-        break_anim_path = self.RESOURCE_PATH + 'break/'
-        animations = self.list_files(break_anim_path, '.bmp')
-        img = break_anim_path + random.choice(animations)
-        # Show break animation, loop to show for few seconds
-        self.display.animate(img, 50, 50, 12, x=39, y=14, invert=True, repeat=6, fps=10)
+        self._play_anim('break', repeat=6)
         self.say_a_quote_or_joke()
         time.sleep(8)
         self.neutral()
@@ -149,7 +148,7 @@ class Emotions:
         self.good(anim=True)
 
     def hot(self):
-        # Notification stays until action is taken
+        # Notification stays until the temperature drops
         self.display.fill(0)
         self.display.text('Too hot', 5, 20, 1, size=2)
         self.display.text('Disconnect', 5, 40, 1, size=2)
@@ -189,7 +188,7 @@ class Emotions:
             self.display.show()
         if co2 >= 1500:
             if not show_data:
-                self._draw_image('eyes/polluted.pbm')
+                self._draw_static('eyes', 'static', 'polluted')
             self.tone.play(ma_sound.NOTE_DS7, 0.2)
             self.led_left.toggle()
             self.led_right.toggle()
@@ -216,11 +215,3 @@ class Emotions:
             self.display.fill(0)
             self.display.text('God mode!', 13, 25, 1, size=2)
             self.display.show()
-
-
-    def list_files(self, directory, ext):
-        files = []
-        for file in os.listdir(directory):
-            if not file.startswith('.') and file.endswith(ext):
-                files.append(file)
-        return files

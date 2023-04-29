@@ -22,11 +22,11 @@ import lib_cp_magicalapes.utils as ma_utils
 
 # Import MA1 specific libs
 # These libraries are configurable in settings.toml file
-# Extend, hack, make your own to your herts content
+# Extend, hack, make your own to your hearts content
 ma1_state = __import__(os.getenv('state_module'), globals(), locals(), [], 0)
 ma1_emotions = __import__(os.getenv('emotions_module'), globals(), locals(), [], 0)
 
-# Read setting / create constants
+# Read settings.toml / create constants
 BRIGHTNESS_DAY = os.getenv('brightness_day')
 BRIGHTNESS_NIGHT = os.getenv('brightness_night')
 MODE_NORMAL = 0
@@ -42,11 +42,12 @@ pixels.clear()
 # This is needed since CircuitPython displayio does not release i2c pin during soft reboots
 ma_display.release()
 
-# system can be used to read the temprature, voltage etc.
+# system can be used to read the chip temperature, voltage etc.
 system = ma_system.System(vsys = board.A3)
 
 # Create the I2C interface for OLED, use any pins you like, we are going with GP13 (SDA) & GP12 (SCL)
 # busio.I2C(SCL, SDA)
+# Do not increase i2c frequency above 800_000 otherwise some parts like touch sensor might not respond
 i2c = system.open_i2c(board.GP13, board.GP12, freq=800_000)
 
 # This initialises MA1 specific sensors and state
@@ -113,7 +114,7 @@ while True:
     elif upside[1] == 1:
         mode = MODE_UPSIDE
     else:
-        mode = MODE_NORMAL # Normal or left is the same
+        mode = MODE_NORMAL
 
     env_data = ma1.env_data
     if env_data:
@@ -152,7 +153,7 @@ while True:
         if break_timer.elapsed > 3600:
             break_timer.reset()
             # Time to prompt for a break
-            # But only if its not sleeping and its not dark / night time
+            # But only if its not dark / night time
             if not dark[1]:
                 emotions.need_a_break()
 
@@ -164,7 +165,7 @@ while True:
         no_activity_timer.reset()
 
         if quick_move[1]:
-            emotions.afraid()
+            emotions.afraid(repeat=30)
         elif picked[1] and touch[1]:
             emotions.happy(anim=True)
         elif picked[1]:
@@ -176,7 +177,7 @@ while True:
             emotions.blink()
         else:
             emotions.neutral()
-            
+
     elif mode == MODE_LEFT:
         god_mode_timer.reset()
         if sleeping:

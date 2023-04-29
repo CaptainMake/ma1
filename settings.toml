@@ -17,25 +17,33 @@ light_threshold=5900
 # - Temperature offset must be defined in 'degrees celsius'
 # - This offset is to account for the temperature differences within and outside the device
 temperature_offset=4
+
 # - Temperature scale, use "c" for Celsius "f" for Fahrenheit
 temperature_scale="c"
+
 # - Altitude, meters above sea level
 altitude=0
 
 # Lights (leg squiggles)
 # - You can set the brightness of the light for the day and evening/night times
-# - higher the value, more light it emmits
+# - higher the value, more light is emitted
 brightness_day=40000
 brightness_night=12000
 
 # ---------------------------------------------------------
 # Advanced
 # ---------------------------------------------------------
-# Override to change display
-resource_path="ma1/assets/"
+
+# Bitmaps dictionary
+# CircuitPython settings.toml does not support sub tables so we will define
+# static and animated bitmaps in a seperate dictionary
+bitmaps="ma1/bitmaps_dictionary"
+
 # State module, override if needed
 state_module="ma1.state.eltm"
+
 # Emotions module, override if needed
 emotions_module="ma1.emotions"
+
 # Main script, this is where the magic starts
 main_script="ma1/start.py"
