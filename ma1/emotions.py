@@ -9,7 +9,7 @@ MA-1's emotions module, override in config if needed
 
 """
 
-import os, time, random, board, supervisor
+import os, time, random, board, supervisor, gc
 import lib_cp_magicalapes.utils as utils
 import lib_cp_magicalapes.output.lights as ma_lights
 import lib_cp_magicalapes.output.sound as ma_sound
@@ -35,6 +35,11 @@ class Emotions:
             self.display.fill(0)
         self.display.draw_image(file, color, shift_x, shift_y)
         self.display.show()
+        gc.collect()
+
+    def _draw_label(self, text, x:int = 0, y:int = 0):
+        self.display.label(text, x=x, y=y)
+        gc.collect()
 
     def _draw_static(self, *dict_location, color:int = 1, over:bool = False):
         if not over:
@@ -43,6 +48,7 @@ class Emotions:
         if bitmap:
             self.display.draw_image(bitmap['file'], color, bitmap['x'], bitmap['y'])
         self.display.show()
+        gc.collect()
 
     def _play_anim(self, *dict_location, repeat:int = 1):
         bitmap = self.bitmaps.get(*dict_location)
@@ -51,6 +57,7 @@ class Emotions:
         if isinstance(bitmap, list):
             bitmap = random.choice(bitmap)
         self.display.animate(bitmap['file'], bitmap['width'], bitmap['height'], bitmap['frames'], x=bitmap['x'], y=bitmap['y'], invert=bitmap['invert'], fps=bitmap['fps'], repeat=repeat)
+        gc.collect()
 
     @property
     def brightness(self):
@@ -108,7 +115,7 @@ class Emotions:
     def wonder(self):
         self.timer.measure()
         if 0 <= (self.timer.elapsed % (30*1000)) <= 100: # update every 30 seconds
-            self.blink()
+            self.blink(2)
 
     def eyes_up(self, anim:bool=False, repeat:int = 1):
         if anim:
@@ -135,7 +142,7 @@ class Emotions:
     def say_a_quote_or_joke(self):
         text = self.quotes.get()
         y = 17 if len(text) <= 50 else 11
-        self.display.label(text, x=14, y=y)
+        self._draw_label(text, x=14, y=y)
 
     def need_a_break(self):
         self.tone.melody(random.choice(ma1_melody.BREAK_TIME_MELODIES))
