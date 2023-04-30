@@ -27,8 +27,10 @@ ma1_state = __import__(os.getenv('state_module'), globals(), locals(), [], 0)
 ma1_emotions = __import__(os.getenv('emotions_module'), globals(), locals(), [], 0)
 
 # Read settings.toml / create constants
-BRIGHTNESS_DAY = os.getenv('brightness_day')
-BRIGHTNESS_NIGHT = os.getenv('brightness_night')
+BREAK_INTERVAL = int(os.getenv('break_interval')) if os.getenv('break_interval') else 3600
+BRIGHTNESS_DAY = int(os.getenv('brightness_day')) if os.getenv('brightness_day') else 40000
+BRIGHTNESS_NIGHT = int(os.getenv('brightness_night')) if os.getenv('brightness_night') else 12000
+
 MODE_NORMAL = 0
 MODE_LEFT = 1
 MODE_RIGHT = 2
@@ -150,7 +152,7 @@ while True:
         elif no_activity_timer.elapsed > 600:
             emotions.quiet()
 
-        if break_timer.elapsed > 3600:
+        if break_timer.elapsed > BREAK_INTERVAL:
             break_timer.reset()
             # Time to prompt for a break
             # But only if its not dark / night time

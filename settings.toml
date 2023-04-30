@@ -30,6 +30,9 @@ altitude=0
 brightness_day=40000
 brightness_night=12000
 
+# Break after every n seconds
+break_interval=3600
+
 # ---------------------------------------------------------
 # Advanced
 # ---------------------------------------------------------
