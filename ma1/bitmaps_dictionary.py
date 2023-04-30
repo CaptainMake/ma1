@@ -76,7 +76,7 @@ config = {
             "happy": {
                 "file": "ma1/assets/eyes/happy.bmp",
                 "frames": 10,
-                "fps": 120,
+                "fps": 80,
                 "width": 128,
                 "height": 64,
                 "x": 1,
@@ -86,7 +86,17 @@ config = {
             "good": {
                 "file": "ma1/assets/eyes/good.bmp",
                 "frames": 10,
-                "fps": 120,
+                "fps": 80,
+                "width": 128,
+                "height": 64,
+                "x": 1,
+                "y": 0,
+                "invert": True
+            },
+            "giggle": {
+                "file": "ma1/assets/eyes/giggle.bmp",
+                "frames": 5,
+                "fps": 40,
                 "width": 128,
                 "height": 64,
                 "x": 1,
@@ -96,7 +106,7 @@ config = {
             "up": {
                 "file": "ma1/assets/eyes/up.bmp",
                 "frames": 8,
-                "fps": 120,
+                "fps": 160,
                 "width": 128,
                 "height": 64,
                 "x": 1,
@@ -126,7 +136,7 @@ config = {
             "shake": {
                 "file": "ma1/assets/eyes/shake.bmp",
                 "frames": 9,
-                "fps": 120,
+                "fps": 80,
                 "width": 128,
                 "height": 64,
                 "x": 1,

@@ -97,8 +97,20 @@ class Emotions:
         else:
             self._draw_static('eyes', 'static', 'good')
 
+    def giggle(self, anim:bool=False, repeat:int = 1):
+        if anim:
+            self._play_anim('eyes', 'anim', 'giggle', repeat=repeat)
+        else:
+            self._draw_static('eyes', 'static', 'good')
+
     def blink(self, repeat:int = 1):
         self._play_anim('eyes', 'anim', 'blink', repeat=repeat)
+
+    # Randomly either blink or giggle, blink has 3x more probability to be picked (may be)
+    def touch(self):
+        rand_num = random.randint(1, 4)
+        if rand_num <= 3: self.blink()
+        else: self.giggle(anim=True, repeat=5)
 
     def shake(self, repeat:int = 1):
         self._play_anim('eyes', 'anim', 'shake', repeat=repeat)
@@ -150,9 +162,9 @@ class Emotions:
         self._play_anim('break', repeat=6)
         self.say_a_quote_or_joke()
         time.sleep(8)
-        self.neutral()
+        self.giggle()
         time.sleep(0.5)
-        self.good(anim=True)
+        self.giggle(anim=True, repeat=3)
 
     def hot(self):
         # Notification stays until the temperature drops
@@ -206,8 +218,8 @@ class Emotions:
                     self.blink()
             if 0 <= (self.timer.elapsed % (12*1000)) <= 100: # update every 12 seconds
                 if not show_data:
-                    self.shake(3)
-            if 0 <= (self.timer.elapsed % (60*1000)) <= 100: # update every 60 seconds
+                    self.shake(6)
+            if 0 <= (self.timer.elapsed % (90*1000)) <= 100: # update every 90 seconds
                 self.tone.play(ma_sound.NOTE_A3, 0.1)
             if 0 <= (self.timer.elapsed % (300*1000)) <= 100: # update every 5 min
                 self.tone.melody(ma1_melody.BAD_AIR_QUALITY)

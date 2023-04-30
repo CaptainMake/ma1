@@ -174,7 +174,7 @@ while True:
             else:
                 emotions.eyes_up()
         elif touch[1]:
-            emotions.blink()
+            emotions.touch()
         else:
             emotions.neutral()
 
