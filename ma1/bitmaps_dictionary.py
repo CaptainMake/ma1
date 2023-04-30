@@ -103,6 +103,16 @@ config = {
                 "y": 0,
                 "invert": True
             },
+            "giggle_up": {
+                "file": "ma1/assets/eyes/giggle.bmp",
+                "frames": 5,
+                "fps": 40,
+                "width": 128,
+                "height": 64,
+                "x": 1,
+                "y": -7,
+                "invert": True
+            },
             "up": {
                 "file": "ma1/assets/eyes/up.bmp",
                 "frames": 8,

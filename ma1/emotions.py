@@ -88,6 +88,9 @@ class Emotions:
     def happy(self, anim:bool=False, repeat:int = 1):
         if anim:
             self._play_anim('eyes', 'anim', 'happy', repeat=repeat)
+            # Sometimes....
+            if random.randint(1, 4) == 4:
+                self._play_anim('eyes', 'anim', 'giggle_up', repeat=3)
         else:
             self._draw_static('eyes', 'static', 'happy')
 
@@ -110,7 +113,7 @@ class Emotions:
     def touch(self):
         rand_num = random.randint(1, 4)
         if rand_num <= 3: self.blink()
-        else: self.giggle(anim=True, repeat=5)
+        else: self.giggle(anim=True, repeat=4)
 
     def shake(self, repeat:int = 1):
         self._play_anim('eyes', 'anim', 'shake', repeat=repeat)
@@ -219,10 +222,11 @@ class Emotions:
             if 0 <= (self.timer.elapsed % (12*1000)) <= 100: # update every 12 seconds
                 if not show_data:
                     self.shake(6)
-            if 0 <= (self.timer.elapsed % (90*1000)) <= 100: # update every 90 seconds
-                self.tone.play(ma_sound.NOTE_A3, 0.1)
-            if 0 <= (self.timer.elapsed % (300*1000)) <= 100: # update every 5 min
-                self.tone.melody(ma1_melody.BAD_AIR_QUALITY)
+            if 0 <= (self.timer.elapsed % (120*1000)) <= 100: # update every 2 minutes
+                if co2 >= 1000:
+                    self.tone.melody(ma1_melody.BAD_AIR_QUALITY)
+                else:
+                    self.tone.play(ma_sound.NOTE_A3, 0.1)
 
     def god_mode(self, counter:int=0):
         if counter:
