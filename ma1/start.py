@@ -28,8 +28,12 @@ ma1_emotions = __import__(os.getenv('emotions_module'), globals(), locals(), [],
 
 # Read settings.toml / create constants
 BREAK_INTERVAL = int(os.getenv('break_interval')) if os.getenv('break_interval') else 3600
-BRIGHTNESS_DAY = int(os.getenv('brightness_day')) if os.getenv('brightness_day') else 40000
+MAX_BRIGHTNESS = 65535
+BRIGHTNESS_DAY = int(os.getenv('brightness_day')) if os.getenv('brightness_day') else MAX_BRIGHTNESS
 BRIGHTNESS_NIGHT = int(os.getenv('brightness_night')) if os.getenv('brightness_night') else 12000
+# Make sure that the value is under 65535 else RP2040 will crash
+BRIGHTNESS_DAY = min(BRIGHTNESS_DAY, MAX_BRIGHTNESS)
+BRIGHTNESS_NIGHT = min(BRIGHTNESS_NIGHT, MAX_BRIGHTNESS)
 
 MODE_NORMAL = 0
 MODE_LEFT = 1
