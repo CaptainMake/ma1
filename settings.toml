@@ -1,3 +1,10 @@
+################################################################################
+# Main MA-1 Settings
+# Please read the following blog post before you change anything
+# https://magicalapes.com/blog/customizing-your-ma-1/
+################################################################################
+
+
 # ---------------------------------------------------------
 # Name can only be alphanumeric and '-'
 # Used as a USB label when you connect MA-1 to the computer
@@ -11,7 +18,7 @@ name="MA-1"
 
 # Light sensor:
 # - Above this value we assume its dark
-light_threshold=5900
+light_threshold=4100
 
 # Environment sensor:
 # - Temperature offset must be defined in 'degrees celsius'

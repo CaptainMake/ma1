@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+#
 """
 boot
 ====================================================
@@ -18,30 +20,24 @@ storage.remount("/", readonly=False)
 m = storage.getmount("/")
 m.label = os.getenv('name')
 
-# If a file 'remove_for_normal_operation' exists, MA-1 is inde mode
+# If a file 'god_mode.txt' exists, MA-1 is writable / configurable
 system = ma_system.System()
 if system.god_mode:
     # In god mode, USB drive is readonly for MA-1 hence writable for humans
     storage.remount("/", readonly=True)
 else:
     # Else mounted USB drive is writable for MA-1, hence readonly for Humans
-    # Else no sensor calibration data is persisted, MA-1 wont be able to learn
     storage.remount("/", readonly=False)
-
 
 # Notes regarding the god mode and normal operation mode:
 # -----------------------------------------------------------------------------
 # Since CircuitPython only allows one source (Code or Human) to write at a time,
 # We are leaving the mounted storage as read/write for the CircuitPython code
-# This makes it read only for the human but writable for the code
-
-# Why we do this?
-# - This allows the code to log sensor values, especially environmental sensor calibration values.
-# - This also helps to avoid accidental deletion of files from the mounted USB drive.
+# This makes it read only for the humans but writable for the code
 
 # How do I switch to the god mode?
 # While connected to the USB, Turn MA-1 upside down, wait for approx 60 seconds, you will see the screen shows 'God mode!'
-# Disconnect/connect and now you can change anything to your hearts content
+# Disconnect/connect and now MA-1 is in God mode and you can change anything to your hearts content
 
 # How do I switch to normal operation mode:
 # Connect MA-1 to the computer

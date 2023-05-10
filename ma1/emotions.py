@@ -172,8 +172,8 @@ class Emotions:
     def hot(self):
         # Notification stays until the temperature drops
         self.display.fill(0)
-        self.display.text('Too hot', 5, 20, 1, size=2)
-        self.display.text('Disconnect', 5, 40, 1, size=2)
+        self.display.text('Too hot!', 5, 15, 1, size=2)
+        self.display.text('Disconnect', 5, 35, 1, size=2)
         self.display.show()
         self.tone.play(ma_sound.NOTE_G7, 2)
 

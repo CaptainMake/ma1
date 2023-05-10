@@ -16,7 +16,7 @@ import lib_cp_magicalapes.utils as ma_utils
 import ma1.state.env_sensor as env_sensor
 
 class LSTM:
-        
+
     def __init__(self, i2c):
         self.motion = ms.Motion_I2C(i2c)
         self.motion.set_defaults(force='2g', threshold=40, tap=2)
@@ -32,10 +32,10 @@ class LSTM:
         self._env_data = None
         self.calibration_timer = ma_utils.Timer()
 
-        # [AQI, light, touch, pickup, tilt left, tilt right, upside]
+        # [light, touch, pickup, tilt left, tilt right, upside, CO2 Pollution]
         self.state = [0]*8
         self.prev_state = [0]*8
-        
+
         # previous motion combined (x,y,z) average
         self.prev_mca = 0
         # motion raw (x, y, z)
@@ -55,7 +55,7 @@ class LSTM:
             self._env_data = self.env_sense.data
 
         self.prev_state = self.state.copy()
-        
+
         # x, y, z axis averages
         a_x, a_y, a_z = self.Motion_sampler.avg()
         self.motion_avg = [a_x, a_y, a_z]
@@ -70,23 +70,23 @@ class LSTM:
         # Turned towards the right
         self.state[4] = 1 if a_x <= -4 else 0
         # upside down
-        self.state[5] = 1 if a_z <= -8 else 0        
+        self.state[5] = 1 if a_z <= -8 else 0
         # quick move
         self.state[6] = 1 if self.prev_mca - sum(self.motion_avg) > 4 else 0
-        
+
         # Pollution, anything equals or over CO2 800 sets to 1
         if self.env_data:
             self.state[7] = 1 if self.env_data['CO2'] >= 800 else 0
         else:
             self.state[7] = 0
-        
+
         self.prev_mca = sum(self.motion_avg)
 
     def calibrate():
         self.calibration_timer.measure()
         if self.calibration_timer.elapsed >= self.cal_interval: # configured in settings
             self.calibration_timer.reset()
-            self.env_sense.calibrate()    
+            self.env_sense.calibrate()
 
     # expose samplers
     @property
@@ -166,7 +166,7 @@ class LSTM:
     @property
     def right(self):
         return self._get_state(4)
-    
+
     @property
     def upside(self):
         return self._get_state(5)
@@ -178,4 +178,3 @@ class LSTM:
     @property
     def polluted(self):
         return self._get_state(7)
-
