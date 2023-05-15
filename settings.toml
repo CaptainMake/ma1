@@ -23,7 +23,9 @@ light_threshold=4100
 # Environment sensor:
 # - Temperature offset must be defined in 'degrees celsius'
 # - This offset is to account for the temperature differences within and outside the device
-temperature_offset=4
+# - 4 degree Celsius is the difference SCD40 (the sensor) and the device,
+# - another approx 3-4 degrees Celsius is the difference between the device (MA-1) and the room temperature
+temperature_offset=8
 
 # - Temperature scale, use "c" for Celsius "f" for Fahrenheit
 temperature_scale="c"
@@ -39,11 +41,15 @@ altitude=0
 brightness_day=65535 # 65535 is the max
 brightness_night=12000
 # For Red and White MA-1
-#brightness_day=30000
-#brightness_night=4000
+#brightness_day=45000
+#brightness_night=8000
 
 # Break after every n seconds
 break_interval=3600
+
+# CO2 offset, this value is factory calibrated
+# Do not change this value unless you can measure co2 with an industrial precision
+co2_offset = 0
 
 # ---------------------------------------------------------
 # Advanced

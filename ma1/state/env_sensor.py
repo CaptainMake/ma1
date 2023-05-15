@@ -20,12 +20,17 @@ class EnvSense:
         self.env_sensor.temperature_offset = os.getenv('temperature_offset')
         self.temp_scale = 'c' if os.getenv('temperature_scale') is 'c' else 'f'
         self.env_sensor.altitude = os.getenv('altitude')
+        self.env_sensor.co2_offset = os.getenv('co2_offset')
         # Start SCD40
         self.env_sensor.start_periodic_measurement()
 
     @property
     def data_ready(self):
         return self.env_sensor.data_ready
+
+    @property
+    def co2(self):
+        return self.env_sensor.CO2 + self.env_sensor.co2_offset
 
     @property
     def data(self):
@@ -37,6 +42,6 @@ class EnvSense:
             data['Temperature'] = round(temperature)
             data['T_Scale'] = self.temp_scale
             data['Humidity'] = round(self.env_sensor.relative_humidity)
-            data['CO2'] = self.env_sensor.CO2
+            data['CO2'] = self.co2
             return data
         return None

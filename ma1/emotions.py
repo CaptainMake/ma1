@@ -156,7 +156,7 @@ class Emotions:
 
     def say_a_quote_or_joke(self):
         text = self.quotes.get()
-        y = 17 if len(text) <= 50 else 11
+        y = 17 if len(text) <= 45 else 11
         self._draw_label(text, x=14, y=y)
 
     def need_a_break(self):
@@ -164,7 +164,7 @@ class Emotions:
         # Get all break time animations, we are starting with one but users can add their own animations
         self._play_anim('break', repeat=6)
         self.say_a_quote_or_joke()
-        time.sleep(8)
+        time.sleep(10)
         self.giggle()
         time.sleep(0.5)
         self.giggle(anim=True, repeat=3)
